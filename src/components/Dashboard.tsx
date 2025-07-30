@@ -1,10 +1,12 @@
-import { Calendar, Clock, Users, MessageSquare, TrendingUp, AlertCircle } from "lucide-react";
+import { Calendar, Clock, Users, MessageSquare, TrendingUp, AlertCircle, Eye } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const draftEvents = [
     {
       id: "AUC-001",
@@ -145,8 +147,13 @@ const Dashboard = () => {
                 </Button>
               </div>
             ))}
-            <Button variant="ghost" className="w-full text-accent hover:text-accent-foreground">
-              View All Drafts
+            <Button 
+              variant="ghost" 
+              className="w-full text-accent hover:text-accent-foreground"
+              onClick={() => navigate('/my-events')}
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              View All Events
             </Button>
           </CardContent>
         </Card>
