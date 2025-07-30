@@ -184,8 +184,27 @@ export const DocumentManagement = ({
                         variant="ghost" 
                         size="sm"
                         onClick={() => {
-                          // Simple document view functionality
-                          alert(`Viewing document: ${doc.name}\nSize: ${formatFileSize(doc.file_size || 0)}\nVersion: ${doc.version}`);
+                          // Create a fake PDF content
+                          const pdfWindow = window.open('', '_blank');
+                          if (pdfWindow) {
+                            pdfWindow.document.write(`
+                              <html>
+                                <head><title>${doc.name}</title></head>
+                                <body style="margin: 20px; font-family: Arial, sans-serif;">
+                                  <h1>${doc.name}</h1>
+                                  <p><strong>Version:</strong> ${doc.version}</p>
+                                  <p><strong>Size:</strong> ${formatFileSize(doc.file_size || 0)}</p>
+                                  <hr>
+                                  <h2>Document Content</h2>
+                                  <p>This is a sample document content. In a real application, this would show the actual document content.</p>
+                                  <p>Document shared with: ${doc.shared_with_all ? 'All participants' : 'Selected participants'}</p>
+                                  <br><br>
+                                  <p style="color: #666; font-size: 12px;">This is a preview. Download the actual document for complete content.</p>
+                                </body>
+                              </html>
+                            `);
+                            pdfWindow.document.close();
+                          }
                         }}
                       >
                         <Eye className="h-4 w-4" />

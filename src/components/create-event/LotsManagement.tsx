@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Plus, Package, Upload, Library, Trash2, Edit } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 interface Lot {
@@ -253,9 +254,68 @@ export const LotsManagement = ({
                         Configure advanced lot with multiple components
                       </DialogDescription>
                     </DialogHeader>
-                    <div className="text-center py-8">
-                      <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">Advanced lot builder coming soon</p>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="advanced-lot-name">Lot Name</Label>
+                        <Input
+                          id="advanced-lot-name"
+                          placeholder="e.g., IT Equipment Package"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label>Price Components</Label>
+                        <div className="space-y-2">
+                          <div className="p-3 border rounded-lg">
+                            <div className="grid grid-cols-2 gap-2">
+                              <Input placeholder="Component name" />
+                              <Select>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="price">Price</SelectItem>
+                                  <SelectItem value="text">Text</SelectItem>
+                                  <SelectItem value="percentage">Percentage</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          <Button variant="outline" size="sm">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Component
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Line Items</Label>
+                        <div className="space-y-2">
+                          <div className="p-3 border rounded-lg">
+                            <div className="grid grid-cols-3 gap-2">
+                              <Input placeholder="Item name" />
+                              <Input placeholder="Quantity" type="number" />
+                              <Input placeholder="Unit" />
+                            </div>
+                          </div>
+                          <Button variant="outline" size="sm">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Line Item
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2 justify-end">
+                        <Button variant="outline" onClick={() => setIsAddLotOpen(false)}>
+                          Cancel
+                        </Button>
+                        <Button onClick={() => {
+                          // Handle advanced lot creation
+                          setIsAddLotOpen(false);
+                        }}>
+                          Create Advanced Lot
+                        </Button>
+                      </div>
                     </div>
                   </DialogContent>
                 </Dialog>

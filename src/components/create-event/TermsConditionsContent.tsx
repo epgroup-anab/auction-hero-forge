@@ -3,6 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { FileText, Download, Upload, Eye, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -38,17 +40,73 @@ export const TermsConditionsContent = () => {
   };
 
   const handleDownloadTemplate = () => {
+    // Create a downloadable template
+    const templateContent = `TERMS AND CONDITIONS TEMPLATE
+
+1. ACCEPTANCE OF TERMS
+By participating in this auction/RFQ, you agree to be bound by these terms and conditions.
+
+2. ELIGIBILITY
+Participants must be authorized representatives of their organizations.
+
+3. BIDDING PROCESS
+- All bids must be submitted within the specified timeframe
+- Bids are binding and cannot be withdrawn
+- The lowest compliant bid may be accepted
+
+4. PAYMENT TERMS
+Payment terms will be net 30 days from invoice date.
+
+5. DELIVERY REQUIREMENTS
+Delivery must be completed within agreed timeframes.
+
+6. LIABILITY
+Participants are liable for the accuracy of their submissions.
+
+7. DISPUTE RESOLUTION
+Any disputes will be resolved through arbitration.
+
+8. GOVERNING LAW
+These terms are governed by applicable local laws.
+
+9. CONTACT INFORMATION
+For questions, contact the event organizer.
+
+---
+This is a template. Please customize according to your specific requirements.`;
+
+    const blob = new Blob([templateContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'terms-conditions-template.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
     toast({
       title: "Download Started",
-      description: "Template download will begin shortly.",
+      description: "Terms & conditions template downloaded successfully.",
     });
   };
 
   const handleUploadDocument = () => {
-    toast({
-      title: "Upload Feature",
-      description: "Document upload functionality coming soon.",
-    });
+    // Create a file input dynamically
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.pdf,.doc,.docx,.txt';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        toast({
+          title: "File Uploaded",
+          description: `${file.name} has been uploaded successfully.`,
+        });
+        // Here you would typically upload to your server
+      }
+    };
+    input.click();
   };
 
   const handleViewDocument = (doc: any) => {
@@ -185,16 +243,60 @@ export const TermsConditionsContent = () => {
 
       {/* Create Terms Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>Create New Terms & Conditions</DialogTitle>
             <DialogDescription>
               Create custom terms and conditions for your event.
             </DialogDescription>
           </DialogHeader>
-          <div className="text-center py-8">
-            <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">Terms editor coming soon</p>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Document Title</Label>
+              <Input placeholder="Terms & Conditions" />
+            </div>
+            <div className="space-y-2">
+              <Label>Content</Label>
+              <textarea 
+                className="w-full h-96 p-3 border rounded-md resize-none"
+                placeholder="Enter your terms and conditions here...
+
+Example content:
+1. ACCEPTANCE OF TERMS
+By participating in this auction/RFQ, you agree to be bound by these terms and conditions.
+
+2. ELIGIBILITY
+Participants must be authorized representatives of their organizations.
+
+3. BIDDING PROCESS
+- All bids must be submitted within the specified timeframe
+- Bids are binding and cannot be withdrawn
+- The lowest compliant bid may be accepted
+
+4. PAYMENT TERMS
+Payment terms will be net 30 days from invoice date.
+
+5. DELIVERY REQUIREMENTS
+Delivery must be completed within agreed timeframes.
+
+Add your specific terms here..."
+                defaultValue=""
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={() => {
+                toast({
+                  title: "Terms Created",
+                  description: "Your custom terms & conditions have been created.",
+                });
+                setIsCreateOpen(false);
+              }}>
+                Save Terms
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

@@ -138,6 +138,43 @@ export const QuestionnaireSetup = ({
               </Popover>
             </div>
 
+            <div className="space-y-3">
+              <Label>Question Configuration</Label>
+              <div className="space-y-2">
+                <div className="p-4 border rounded-lg bg-muted/30">
+                  <Label className="text-sm font-medium">Question Text</Label>
+                  <Input 
+                    placeholder="Please confirm that you have read our terms & conditions"
+                    className="mt-1 mb-3"
+                  />
+                  <Label className="text-sm font-medium">Question Type</Label>
+                  <Select defaultValue="yes_no">
+                    <SelectTrigger className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="yes_no">Yes/No</SelectItem>
+                      <SelectItem value="pick_one">Pick one from list</SelectItem>
+                      <SelectItem value="multiple_choice">Multiple choice</SelectItem>
+                      <SelectItem value="one_line_text">One line text</SelectItem>
+                      <SelectItem value="paragraph_text">Paragraph Text</SelectItem>
+                      <SelectItem value="document_upload">Document Upload</SelectItem>
+                      <SelectItem value="date">Date</SelectItem>
+                      <SelectItem value="number">Number</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <div className="flex items-center space-x-2 mt-2">
+                    <Checkbox id="mandatory" defaultChecked />
+                    <Label htmlFor="mandatory" className="text-sm">Mandatory</Label>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Another Question
+                </Button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-center space-x-2">
                 <Checkbox 
