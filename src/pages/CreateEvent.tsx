@@ -10,11 +10,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const CreateEvent = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [eventData, setEventData] = useState({
     name: "",
     category: "",
@@ -43,6 +47,63 @@ const CreateEvent = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
+  };
+
+  const saveEvent = async (status: 'draft' | 'published') => {
+    if (!user) return;
+    
+    try {
+      setIsSubmitting(true);
+      
+      const { data, error } = await supabase
+        .from('events')
+        .insert({
+          user_id: user.id,
+          name: eventData.name,
+          category: eventData.category,
+          currency: eventData.currency,
+          description: eventData.description,
+          include_auction: eventData.includeAuction,
+          include_questionnaire: eventData.includeQuestionnaire,
+          include_rfq: eventData.includeRFQ,
+          seal_results: eventData.sealResults,
+          status
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: status === 'draft' ? "Draft saved" : "Event launched!",
+        description: status === 'draft' 
+          ? "Your event has been saved as a draft." 
+          : "Your event has been successfully launched and is now live.",
+      });
+
+      navigate('/');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save event",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSaveDraft = () => saveEvent('draft');
+  const handleLaunchEvent = () => {
+    if (!eventData.name.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter an event name before launching.",
+        variant: "destructive",
+      });
+      return;
+    }
+    saveEvent('published');
   };
 
   // Redirect to auth if not logged in
@@ -336,11 +397,17 @@ const CreateEvent = () => {
               <CardTitle className="text-base">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button variant="outline" size="sm" className="w-full justify-start">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full justify-start"
+                onClick={handleSaveDraft}
+                disabled={isSubmitting}
+              >
                 <Save className="h-4 w-4 mr-2" />
                 Save Draft
               </Button>
-              <Button variant="outline" size="sm" className="w-full justify-start">
+              <Button variant="outline" size="sm" className="w-full justify-start" disabled>
                 <FileText className="h-4 w-4 mr-2" />
                 Load Template
               </Button>
@@ -376,9 +443,20 @@ const CreateEvent = () => {
         <div className="flex items-center gap-3">
           {currentStep === steps.length ? (
             <>
-              <Button variant="outline">Save as Draft</Button>
-              <Button variant="premium" className="min-w-[120px]">
-                Launch Event
+              <Button 
+                variant="outline" 
+                onClick={handleSaveDraft}
+                disabled={isSubmitting}
+              >
+                Save as Draft
+              </Button>
+              <Button 
+                variant="premium" 
+                className="min-w-[120px]" 
+                onClick={handleLaunchEvent}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Launching..." : "Launch Event"}
               </Button>
             </>
           ) : (

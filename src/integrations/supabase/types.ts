@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      events: {
+        Row: {
+          category: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          include_auction: boolean
+          include_questionnaire: boolean
+          include_rfq: boolean
+          name: string
+          seal_results: boolean
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          include_auction?: boolean
+          include_questionnaire?: boolean
+          include_rfq?: boolean
+          name: string
+          seal_results?: boolean
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          include_auction?: boolean
+          include_questionnaire?: boolean
+          include_rfq?: boolean
+          name?: string
+          seal_results?: boolean
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
