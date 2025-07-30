@@ -13,6 +13,7 @@ export const TermsConditionsContent = () => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
+  const [selectedDocuments, setSelectedDocuments] = useState<any[]>([]);
 
   const sampleDocuments = [
     {
@@ -115,9 +116,26 @@ This is a template. Please customize according to your specific requirements.`;
   };
 
   const handleUseDocument = (doc: any) => {
+    if (!selectedDocuments.find(d => d.name === doc.name)) {
+      setSelectedDocuments(prev => [...prev, doc]);
+      toast({
+        title: "Document Added",
+        description: `${doc.name} has been added to your event.`,
+      });
+    } else {
+      toast({
+        title: "Document Already Added",
+        description: `${doc.name} is already in your event.`,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleRemoveDocument = (doc: any) => {
+    setSelectedDocuments(prev => prev.filter(d => d.name !== doc.name));
     toast({
-      title: "Document Selected",
-      description: `${doc.name} has been added to your event.`,
+      title: "Document Removed",
+      description: `${doc.name} has been removed from your event.`,
     });
   };
 
@@ -241,6 +259,40 @@ This is a template. Please customize according to your specific requirements.`;
         </CardContent>
       </Card>
 
+      {/* Selected Documents */}
+      {selectedDocuments.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Selected Documents for Event</CardTitle>
+            <CardDescription>
+              Documents that will be included in your event
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {selectedDocuments.map((doc, index) => (
+                <div key={index} className="flex items-center justify-between p-3 border rounded-lg bg-success/5 border-success/20">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="h-5 w-5 text-success" />
+                    <div>
+                      <p className="font-medium text-sm">{doc.name}</p>
+                      <p className="text-xs text-muted-foreground">{doc.description}</p>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => handleRemoveDocument(doc)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Create Terms Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent className="max-w-4xl">
@@ -310,11 +362,36 @@ Add your specific terms here..."
               {selectedDoc?.description}
             </DialogDescription>
           </DialogHeader>
-          <div className="border rounded-lg h-96 flex items-center justify-center">
-            <div className="text-center">
-              <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">Document preview not available</p>
-              <p className="text-sm text-muted-foreground">Size: {selectedDoc?.size}</p>
+          <div className="border rounded-lg h-96 overflow-auto p-6">
+            <div className="text-sm space-y-4">
+              <div className="border-b pb-4">
+                <h3 className="text-lg font-semibold">Document Preview: {selectedDoc?.name}</h3>
+                <p className="text-muted-foreground">{selectedDoc?.description}</p>
+                <p className="text-xs text-muted-foreground">Size: {selectedDoc?.size}</p>
+              </div>
+              
+              <div className="space-y-3">
+                <h4 className="font-medium">Sample Content:</h4>
+                <div className="bg-muted/50 p-4 rounded-md">
+                  <p className="font-medium">TERMS AND CONDITIONS</p>
+                  <br />
+                  <p><strong>1. ACCEPTANCE OF TERMS</strong></p>
+                  <p>By participating in this auction/RFQ, you agree to be bound by these terms and conditions.</p>
+                  <br />
+                  <p><strong>2. ELIGIBILITY</strong></p>
+                  <p>Participants must be authorized representatives of their organizations.</p>
+                  <br />
+                  <p><strong>3. BIDDING PROCESS</strong></p>
+                  <p>- All bids must be submitted within the specified timeframe</p>
+                  <p>- Bids are binding and cannot be withdrawn</p>
+                  <p>- The lowest compliant bid may be accepted</p>
+                  <br />
+                  <p><strong>4. PAYMENT TERMS</strong></p>
+                  <p>Payment terms will be net 30 days from invoice date.</p>
+                  <br />
+                  <p className="text-muted-foreground">...and more standard terms</p>
+                </div>
+              </div>
             </div>
           </div>
         </DialogContent>

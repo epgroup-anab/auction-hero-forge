@@ -71,12 +71,19 @@ const Dashboard = () => {
 
         <Card className="bg-gradient-card border-0 shadow-md hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Participants</CardTitle>
+            <CardTitle className="text-sm font-medium">Manage Suppliers</CardTitle>
             <Users className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">{totalEvents}</div>
-            <p className="text-xs text-muted-foreground">Total events created</p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => navigate('/suppliers')}
+            >
+              <Users className="h-4 w-4 mr-2" />
+              View Suppliers
+            </Button>
           </CardContent>
         </Card>
 
@@ -91,16 +98,16 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-card border-0 shadow-md hover:shadow-lg transition-shadow">
+        <Card className="bg-gradient-card border-0 shadow-md hover:shadow-lg transition-shadow border-2 border-destructive/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
-            <MessageSquare className="h-4 w-4 text-primary" />
+            <CardTitle className="text-sm font-medium text-destructive">QUICK AUCTION</CardTitle>
+            <MessageSquare className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
             <Button 
-              variant="outline" 
+              variant="destructive" 
               size="sm" 
-              className="w-full"
+              className="w-full bg-destructive hover:bg-destructive/90"
               onClick={() => navigate('/create-event')}
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -207,15 +214,15 @@ const Dashboard = () => {
                     </Badge>
                   </div>
                   
-                  <div className="flex justify-end">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => navigate('/my-events')}
-                    >
-                      Manage
-                    </Button>
-                  </div>
+                   <div className="flex justify-end">
+                     <Button 
+                       variant="outline" 
+                       size="sm"
+                       onClick={() => navigate(`/create-event?eventId=${event.id}`)}
+                     >
+                       Manage
+                     </Button>
+                   </div>
                 </div>
               ))
             )}
