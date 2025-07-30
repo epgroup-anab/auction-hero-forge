@@ -6,6 +6,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { AuctionGuideDialog } from "@/components/AuctionGuideDialog";
 
 // Import all step components
 import { EventBasicSetup } from "@/components/create-event/EventBasicSetup";
@@ -97,6 +98,7 @@ const CreateEvent = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
   
   // Event data states
   const [eventData, setEventData] = useState<EventData>({
@@ -754,10 +756,14 @@ const CreateEvent = () => {
           </Button>
           <div>
             <h1 className="text-3xl font-bold">
-              {eventId ? "Edit Event" : "Create New Event"}
+              {eventId ? "Edit Event" : 
+               currentStep > 1 && eventData.name ? eventData.name : 
+               "Create New Event"}
             </h1>
             <p className="text-muted-foreground">
-              {eventId ? "Modify your existing event configuration" : "Set up your comprehensive auction or RFQ event"}
+              {eventId ? "Modify your existing event configuration" : 
+               currentStep > 1 && eventData.name ? "Configure your auction event step by step" :
+               "Set up your comprehensive auction or RFQ event"}
             </p>
           </div>
         </div>
@@ -860,12 +866,7 @@ const CreateEvent = () => {
                 variant="outline" 
                 size="sm" 
                 className="w-full"
-                onClick={() => {
-                  toast({
-                    title: "Help Guide",
-                    description: "Comprehensive guide coming soon. For now, follow the step-by-step wizard.",
-                  });
-                }}
+                onClick={() => setIsGuideOpen(true)}
               >
                 View Guide
               </Button>
@@ -910,6 +911,14 @@ const CreateEvent = () => {
           )}
         </div>
       </div>
+
+      <AuctionGuideDialog 
+        open={isGuideOpen} 
+        onOpenChange={setIsGuideOpen}
+        onStartCreation={() => {
+          // Already on create event page, just close guide
+        }}
+      />
     </div>
   );
 };
