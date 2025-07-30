@@ -152,7 +152,7 @@ const Dashboard = () => {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => navigate('/create-event')}
+                    onClick={() => navigate(`/create-event?eventId=${event.id}`)}
                   >
                     Continue
                   </Button>

@@ -28,7 +28,10 @@ const Header = () => {
         <div className="container flex h-16 items-center justify-between px-6">
           {/* Logo */}
           <div className="flex items-center space-x-4">
-            <div className="bg-gradient-primary bg-clip-text text-transparent">
+            <div 
+              className="bg-gradient-primary bg-clip-text text-transparent cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => navigate('/')}
+            >
               <h1 className="text-2xl font-bold">AUCTION HERO</h1>
             </div>
           </div>
@@ -49,7 +52,10 @@ const Header = () => {
       <div className="container flex h-16 items-center justify-between px-6">
         {/* Logo */}
         <div className="flex items-center space-x-4">
-          <div className="bg-gradient-primary bg-clip-text text-transparent">
+          <div 
+            className="bg-gradient-primary bg-clip-text text-transparent cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => navigate('/')}
+          >
             <h1 className="text-2xl font-bold">AUCTION HERO</h1>
           </div>
         </div>
