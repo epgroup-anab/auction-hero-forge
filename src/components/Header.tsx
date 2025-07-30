@@ -95,6 +95,9 @@ const Header = () => {
               <DropdownMenuItem onClick={() => navigate('/create-event')}>
                 <span>📊 Tender Process</span>
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/suppliers')}>
+                <span>👥 Manage Suppliers</span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 

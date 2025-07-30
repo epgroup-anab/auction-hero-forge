@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Users, CheckCircle, XCircle, Trash2, Mail } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Participant {
   id?: string;
@@ -32,40 +33,6 @@ interface ParticipantManagementProps {
   setAutoAccept: (autoAccept: boolean) => void;
 }
 
-// Sample participant database for testing
-const participantDatabase: Participant[] = [
-  {
-    id: "1",
-    email: "john.doe@techcorp.com",
-    name: "John Doe",
-    company: "TechCorp Solutions"
-  },
-  {
-    id: "2", 
-    email: "sarah.smith@innovate.com",
-    name: "Sarah Smith",
-    company: "Innovate Industries"
-  },
-  {
-    id: "3",
-    email: "mike.johnson@builders.com", 
-    name: "Mike Johnson",
-    company: "Builders United"
-  },
-  {
-    id: "4",
-    email: "lisa.brown@design.com",
-    name: "Lisa Brown", 
-    company: "Design Pro"
-  },
-  {
-    id: "5",
-    email: "david.wilson@logistics.com",
-    name: "David Wilson",
-    company: "Wilson Logistics"
-  }
-];
-
 export const ParticipantManagement = ({ 
   eventParticipants, 
   setEventParticipants,
@@ -74,6 +41,33 @@ export const ParticipantManagement = ({
 }: ParticipantManagementProps) => {
   const [isAddParticipantOpen, setIsAddParticipantOpen] = useState(false);
   const [selectedParticipantId, setSelectedParticipantId] = useState<string>("");
+  const [participantDatabase, setParticipantDatabase] = useState<Participant[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch participants from database
+  useEffect(() => {
+    fetchParticipants();
+  }, []);
+
+  const fetchParticipants = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('participants')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching participants:', error);
+        return;
+      }
+
+      setParticipantDatabase(data || []);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleAddParticipant = () => {
     const participant = participantDatabase.find(p => p.id === selectedParticipantId);
@@ -171,10 +165,14 @@ export const ParticipantManagement = ({
                     <SelectValue placeholder="Select participant" />
                   </SelectTrigger>
                   <SelectContent>
-                    {participantDatabase.length === 0 ? (
+                    {isLoading ? (
+                      <div className="p-4 text-center text-muted-foreground">
+                        <p>Loading participants...</p>
+                      </div>
+                    ) : participantDatabase.length === 0 ? (
                       <div className="p-4 text-center text-muted-foreground">
                         <p>No participants in database</p>
-                        <p className="text-xs">Add participants manually or import from your CRM</p>
+                        <p className="text-xs">Add participants in Supplier Management</p>
                       </div>
                     ) : (
                       participantDatabase
