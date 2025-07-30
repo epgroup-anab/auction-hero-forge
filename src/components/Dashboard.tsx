@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
-import { Calendar, Clock, Users, MessageSquare, TrendingUp, AlertCircle, Eye, Plus } from "lucide-react";
+import { Calendar, Clock, Users, MessageSquare, TrendingUp, AlertCircle, Eye, Plus, HelpCircle, Send } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { AuctionGuideDialog } from "./AuctionGuideDialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 interface Event {
   id: string;
@@ -20,8 +25,13 @@ interface Event {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [isMessageOpen, setIsMessageOpen] = useState(false);
+  const [messageContent, setMessageContent] = useState("");
+  const [messageSubject, setMessageSubject] = useState("");
 
   useEffect(() => {
     if (user) {
@@ -71,24 +81,6 @@ const Dashboard = () => {
 
         <Card className="bg-gradient-card border-0 shadow-md hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Manage Suppliers</CardTitle>
-            <Users className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full"
-              onClick={() => navigate('/suppliers')}
-            >
-              <Users className="h-4 w-4 mr-2" />
-              View Suppliers
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-card border-0 shadow-md hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Draft Events</CardTitle>
             <TrendingUp className="h-4 w-4 text-warning" />
           </CardHeader>
@@ -104,14 +96,41 @@ const Dashboard = () => {
             <MessageSquare className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
+            <div className="flex gap-2">
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                className="flex-1 bg-destructive hover:bg-destructive/90"
+                onClick={() => navigate('/create-event')}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create Event
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setIsGuideOpen(true)}
+              >
+                <HelpCircle className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-card border-0 shadow-md hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Manage Suppliers</CardTitle>
+            <Users className="h-4 w-4 text-primary" />
+          </CardHeader>
+          <CardContent>
             <Button 
-              variant="destructive" 
+              variant="outline" 
               size="sm" 
-              className="w-full bg-destructive hover:bg-destructive/90"
-              onClick={() => navigate('/create-event')}
+              className="w-full"
+              onClick={() => navigate('/suppliers')}
             >
-              <Plus className="h-4 w-4 mr-2" />
-              Create Event
+              <Users className="h-4 w-4 mr-2" />
+              View Suppliers
             </Button>
           </CardContent>
         </Card>
@@ -259,21 +278,111 @@ const Dashboard = () => {
         {/* Recent Messages */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-primary" />
-              Recent Messages
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-primary" />
+                Recent Messages
+              </div>
+              <Dialog open={isMessageOpen} onOpenChange={setIsMessageOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Send className="h-4 w-4 mr-2" />
+                    Message Suppliers
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Send Message to Suppliers</DialogTitle>
+                    <DialogDescription>
+                      Send a message to all suppliers in your network
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="subject">Subject</Label>
+                      <input
+                        id="subject"
+                        className="w-full px-3 py-2 border rounded-md"
+                        placeholder="Message subject..."
+                        value={messageSubject}
+                        onChange={(e) => setMessageSubject(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="message">Message</Label>
+                      <Textarea
+                        id="message"
+                        placeholder="Type your message to suppliers here..."
+                        value={messageContent}
+                        onChange={(e) => setMessageContent(e.target.value)}
+                        rows={4}
+                      />
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" onClick={() => setIsMessageOpen(false)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={() => {
+                        toast({
+                          title: "Message Sent",
+                          description: `Message "${messageSubject}" sent to all suppliers.`,
+                        });
+                        setMessageContent("");
+                        setMessageSubject("");
+                        setIsMessageOpen(false);
+                      }}>
+                        <Send className="h-4 w-4 mr-2" />
+                        Send Message
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </CardTitle>
             <CardDescription>Latest communications</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="p-4 text-center text-muted-foreground">
-              <MessageSquare className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-              <p>No messages yet</p>
-              <p className="text-sm">Participant communications will appear here</p>
+            <div className="space-y-3">
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <p className="font-medium text-sm">New Bid Received</p>
+                    <p className="text-xs text-muted-foreground">From: Acme Corp - Office Supplies RFQ</p>
+                    <p className="text-xs text-muted-foreground">2 hours ago</p>
+                  </div>
+                  <Badge variant="secondary" className="bg-success/10 text-success border-success/20">New</Badge>
+                </div>
+              </div>
+              <div className="p-3 bg-muted/30 rounded-lg">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <p className="font-medium text-sm">Supplier Question</p>
+                    <p className="text-xs text-muted-foreground">From: Global Solutions - Technical Specs Inquiry</p>
+                    <p className="text-xs text-muted-foreground">5 hours ago</p>
+                  </div>
+                  <Badge variant="outline">Read</Badge>
+                </div>
+              </div>
+              <div className="p-3 bg-muted/30 rounded-lg">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <p className="font-medium text-sm">Invitation Accepted</p>
+                    <p className="text-xs text-muted-foreground">From: Tech Supplies Ltd - Joined Q1 Auction</p>
+                    <p className="text-xs text-muted-foreground">1 day ago</p>
+                  </div>
+                  <Badge variant="outline">Read</Badge>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      <AuctionGuideDialog 
+        open={isGuideOpen} 
+        onOpenChange={setIsGuideOpen}
+        onStartCreation={() => navigate('/create-event')}
+      />
     </div>
   );
 };
