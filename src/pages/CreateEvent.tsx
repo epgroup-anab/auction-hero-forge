@@ -159,38 +159,77 @@ const CreateEvent = () => {
       
       console.log('Starting event creation with data:', { eventData, auctionSettings, questionnaires, documents, lots, eventParticipants });
       
-      // 1. Create the main event
-      const { data: event, error: eventError } = await supabase
-        .from('events')
-        .insert({
-          user_id: user.id,
-          name: eventData.name,
-          category: eventData.category,
-          default_currency: eventData.default_currency,
-          multi_currency: eventData.multi_currency,
-          brief_text: eventData.brief_text,
-          include_auction: eventData.includeAuction,
-          include_questionnaire: eventData.includeQuestionnaire,
-          include_rfq: eventData.includeRFQ,
-          seal_results: eventData.sealResults,
-          status
-        })
-        .select()
-        .single();
+      let eventResult;
+      
+      // If editing existing event, update it
+      if (eventId) {
+        const { data: event, error: eventError } = await supabase
+          .from('events')
+          .update({
+            name: eventData.name,
+            category: eventData.category,
+            default_currency: eventData.default_currency,
+            multi_currency: eventData.multi_currency,
+            brief_text: eventData.brief_text,
+            include_auction: eventData.includeAuction,
+            include_questionnaire: eventData.includeQuestionnaire,
+            include_rfq: eventData.includeRFQ,
+            seal_results: eventData.sealResults,
+            status
+          })
+          .eq('id', eventId)
+          .eq('user_id', user.id)
+          .select()
+          .single();
 
-      if (eventError) {
-        console.error('Event creation error:', eventError);
-        throw eventError;
+        if (eventError) {
+          console.error('Event update error:', eventError);
+          throw eventError;
+        }
+        eventResult = event;
+      } else {
+        // Create new event
+        const { data: event, error: eventError } = await supabase
+          .from('events')
+          .insert({
+            user_id: user.id,
+            name: eventData.name,
+            category: eventData.category,
+            default_currency: eventData.default_currency,
+            multi_currency: eventData.multi_currency,
+            brief_text: eventData.brief_text,
+            include_auction: eventData.includeAuction,
+            include_questionnaire: eventData.includeQuestionnaire,
+            include_rfq: eventData.includeRFQ,
+            seal_results: eventData.sealResults,
+            status
+          })
+          .select()
+          .single();
+
+        if (eventError) {
+          console.error('Event creation error:', eventError);
+          throw eventError;
+        }
+        eventResult = event;
       }
 
-      console.log('Event created:', event);
+      console.log('Event saved:', eventResult);
 
       // 2. Save auction settings if auction is enabled
-      if (eventData.includeAuction && event.id) {
+      if (eventData.includeAuction && eventResult.id) {
+        // Delete existing auction settings if updating
+        if (eventId) {
+          await supabase
+            .from('auction_settings')
+            .delete()
+            .eq('event_id', eventId);
+        }
+
         const { error: auctionError } = await supabase
           .from('auction_settings')
           .insert({
-            event_id: event.id,
+            event_id: eventResult.id,
             start_date: auctionSettings.start_date?.toISOString(),
             start_time: auctionSettings.start_time,
             bid_direction: auctionSettings.bid_direction,
@@ -210,9 +249,17 @@ const CreateEvent = () => {
       }
 
       // 3. Save questionnaires if questionnaire is enabled
-      if (eventData.includeQuestionnaire && questionnaires.length > 0 && event.id) {
+      if (eventData.includeQuestionnaire && questionnaires.length > 0 && eventResult.id) {
+        // Delete existing questionnaires if updating
+        if (eventId) {
+          await supabase
+            .from('questionnaires')
+            .delete()
+            .eq('event_id', eventId);
+        }
+
         const questionnaireInserts = questionnaires.map(q => ({
-          event_id: event.id,
+          event_id: eventResult.id,
           name: q.name,
           deadline: q.deadline?.toISOString(),
           pre_qualification: q.pre_qualification,
@@ -233,9 +280,17 @@ const CreateEvent = () => {
       }
 
       // 4. Save documents
-      if (documents.length > 0 && event.id) {
+      if (documents.length > 0 && eventResult.id) {
+        // Delete existing documents if updating
+        if (eventId) {
+          await supabase
+            .from('documents')
+            .delete()
+            .eq('event_id', eventId);
+        }
+
         const documentInserts = documents.map(d => ({
-          event_id: event.id,
+          event_id: eventResult.id,
           name: d.name,
           file_path: d.file_path,
           file_size: d.file_size,
@@ -256,9 +311,17 @@ const CreateEvent = () => {
       }
 
       // 5. Save lots if RFQ is enabled
-      if (eventData.includeRFQ && lots.length > 0 && event.id) {
+      if (eventData.includeRFQ && lots.length > 0 && eventResult.id) {
+        // Delete existing lots if updating
+        if (eventId) {
+          await supabase
+            .from('lots')
+            .delete()
+            .eq('event_id', eventId);
+        }
+
         const lotInserts = lots.map(l => ({
-          event_id: event.id,
+          event_id: eventResult.id,
           name: l.name,
           quantity: l.quantity,
           unit_of_measure: l.unit_of_measure,
@@ -280,7 +343,15 @@ const CreateEvent = () => {
       }
 
       // 6. Save participants
-      if (eventParticipants.length > 0 && event.id) {
+      if (eventParticipants.length > 0 && eventResult.id) {
+        // Delete existing event participants if updating
+        if (eventId) {
+          await supabase
+            .from('event_participants')
+            .delete()
+            .eq('event_id', eventId);
+        }
+
         // First ensure participants exist in participants table
         for (const ep of eventParticipants) {
           const { error: participantError } = await supabase
@@ -313,7 +384,7 @@ const CreateEvent = () => {
         const eventParticipantInserts = eventParticipants.map(ep => {
           const participant = participantData?.find(p => p.email === ep.participant.email);
           return {
-            event_id: event.id,
+            event_id: eventResult.id,
             participant_id: participant?.id,
             status: ep.status,
             approved: ep.approved,
