@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,20 @@ export const QuestionnaireSetup = ({
   setQuestionnaires 
 }: QuestionnaireSetupProps) => {
   const [showAddAnother, setShowAddAnother] = useState(false);
+
+  // Initialize questionnaires on first render if empty
+  useEffect(() => {
+    if (includeQuestionnaire && questionnaires.length === 0) {
+      const initialQuestionnaire: Questionnaire = {
+        name: "",
+        pre_qualification: false,
+        scoring: false,
+        weighting: false,
+        order_index: 1
+      };
+      setQuestionnaires([initialQuestionnaire]);
+    }
+  }, [includeQuestionnaire, questionnaires.length, setQuestionnaires]);
 
   if (!includeQuestionnaire) {
     return (
@@ -69,12 +83,6 @@ export const QuestionnaireSetup = ({
     const filtered = questionnaires.filter((_, i) => i !== index);
     setQuestionnaires(filtered);
   };
-
-  // Initialize with one questionnaire if none exist
-  if (questionnaires.length === 0) {
-    addQuestionnaire();
-    return null;
-  }
 
   return (
     <div className="space-y-6">
