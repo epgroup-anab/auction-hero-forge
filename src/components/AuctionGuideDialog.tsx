@@ -126,7 +126,7 @@ export const AuctionGuideDialog = ({ open, onOpenChange, onStartCreation }: Auct
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">{/* Increased max width and height */}
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl">
             <Gavel className="h-6 w-6 text-primary" />

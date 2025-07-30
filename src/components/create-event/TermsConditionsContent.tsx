@@ -14,6 +14,7 @@ export const TermsConditionsContent = () => {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
   const [selectedDocuments, setSelectedDocuments] = useState<any[]>([]);
+  const [customTerms, setCustomTerms] = useState<any[]>([]);
 
   const sampleDocuments = [
     {
@@ -189,6 +190,7 @@ This is a template. Please customize according to your specific requirements.`;
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
+            {/* Sample Documents */}
             {sampleDocuments.map((doc, index) => (
               <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                 <div className="flex items-center gap-3">
@@ -220,9 +222,69 @@ This is a template. Please customize according to your specific requirements.`;
                   <Button 
                     size="sm"
                     onClick={() => handleUseDocument(doc)}
+                    disabled={selectedDocuments.find(d => d.name === doc.name)}
                   >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Use Document
+                    {selectedDocuments.find(d => d.name === doc.name) ? (
+                      <>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Added
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Use Document
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            ))}
+            
+            {/* Custom Terms */}
+            {customTerms.map((doc, index) => (
+              <div key={`custom-${index}`} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors bg-blue-50 border-blue-200">
+                <div className="flex items-center gap-3">
+                  <FileText className="h-8 w-8 text-blue-600" />
+                  <div className="flex-1">
+                    <p className="font-medium">{doc.name}</p>
+                    <p className="text-sm text-muted-foreground">{doc.description}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="outline" className="bg-blue-100">{doc.type}</Badge>
+                      <span className="text-xs text-muted-foreground">{doc.size}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => handleViewDocument(doc)}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={handleDownloadTemplate}
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    size="sm"
+                    onClick={() => handleUseDocument(doc)}
+                    disabled={selectedDocuments.find(d => d.name === doc.name)}
+                  >
+                    {selectedDocuments.find(d => d.name === doc.name) ? (
+                      <>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Added
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Use Document
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>
@@ -340,9 +402,16 @@ Add your specific terms here..."
                 Cancel
               </Button>
               <Button onClick={() => {
+                const newTerm = {
+                  name: (document.querySelector('input[placeholder="Terms & Conditions"]') as HTMLInputElement)?.value || "Custom Terms",
+                  description: "Custom terms and conditions",
+                  size: "1.2 MB",
+                  type: "Custom"
+                };
+                setCustomTerms(prev => [...prev, newTerm]);
                 toast({
                   title: "Terms Created",
-                  description: "Your custom terms & conditions have been created.",
+                  description: "Your custom terms & conditions have been created and added to available documents.",
                 });
                 setIsCreateOpen(false);
               }}>

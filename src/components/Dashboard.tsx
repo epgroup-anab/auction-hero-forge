@@ -10,6 +10,7 @@ import { AuctionGuideDialog } from "./AuctionGuideDialog";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { SupplierMessagingDialog } from "./SupplierMessagingDialog";
 import { useToast } from "@/hooks/use-toast";
 
 interface Event {
@@ -29,9 +30,7 @@ const Dashboard = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
-  const [isMessageOpen, setIsMessageOpen] = useState(false);
-  const [messageContent, setMessageContent] = useState("");
-  const [messageSubject, setMessageSubject] = useState("");
+  const [isSupplierMessageOpen, setIsSupplierMessageOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -283,61 +282,14 @@ const Dashboard = () => {
                 <MessageSquare className="h-5 w-5 text-primary" />
                 Recent Messages
               </div>
-              <Dialog open={isMessageOpen} onOpenChange={setIsMessageOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Send className="h-4 w-4 mr-2" />
-                    Message Suppliers
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Send Message to Suppliers</DialogTitle>
-                    <DialogDescription>
-                      Send a message to all suppliers in your network
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="subject">Subject</Label>
-                      <input
-                        id="subject"
-                        className="w-full px-3 py-2 border rounded-md"
-                        placeholder="Message subject..."
-                        value={messageSubject}
-                        onChange={(e) => setMessageSubject(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="message">Message</Label>
-                      <Textarea
-                        id="message"
-                        placeholder="Type your message to suppliers here..."
-                        value={messageContent}
-                        onChange={(e) => setMessageContent(e.target.value)}
-                        rows={4}
-                      />
-                    </div>
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" onClick={() => setIsMessageOpen(false)}>
-                        Cancel
-                      </Button>
-                      <Button onClick={() => {
-                        toast({
-                          title: "Message Sent",
-                          description: `Message "${messageSubject}" sent to all suppliers.`,
-                        });
-                        setMessageContent("");
-                        setMessageSubject("");
-                        setIsMessageOpen(false);
-                      }}>
-                        <Send className="h-4 w-4 mr-2" />
-                        Send Message
-                      </Button>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setIsSupplierMessageOpen(true)}
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Message Suppliers
+              </Button>
             </CardTitle>
             <CardDescription>Latest communications</CardDescription>
           </CardHeader>
@@ -382,6 +334,11 @@ const Dashboard = () => {
         open={isGuideOpen} 
         onOpenChange={setIsGuideOpen}
         onStartCreation={() => navigate('/create-event')}
+      />
+      
+      <SupplierMessagingDialog 
+        open={isSupplierMessageOpen} 
+        onOpenChange={setIsSupplierMessageOpen}
       />
     </div>
   );
