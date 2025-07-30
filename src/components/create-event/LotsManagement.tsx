@@ -237,17 +237,48 @@ export const LotsManagement = ({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button className="w-full" disabled>
-              <Plus className="h-4 w-4 mr-2" />
-              New Lot
-            </Button>
-            <Button variant="outline" className="w-full" disabled>
-              <Library className="h-4 w-4 mr-2" />
-              Load from Library
-            </Button>
-            <Badge variant="secondary" className="w-full justify-center">
-              Coming Soon
-            </Badge>
+            {isAdvancedMode ? (
+              <>
+                <Dialog open={isAddLotOpen} onOpenChange={setIsAddLotOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full">
+                      <Plus className="h-4 w-4 mr-2" />
+                      New Advanced Lot
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Advanced Lot Configuration</DialogTitle>
+                      <DialogDescription>
+                        Configure advanced lot with multiple components
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="text-center py-8">
+                      <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">Advanced lot builder coming soon</p>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+                <Button variant="outline" className="w-full">
+                  <Library className="h-4 w-4 mr-2" />
+                  Load from Library
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button className="w-full" disabled>
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Lot
+                </Button>
+                <Button variant="outline" className="w-full" disabled>
+                  <Library className="h-4 w-4 mr-2" />
+                  Load from Library
+                </Button>
+                <Badge variant="secondary" className="w-full justify-center">
+                  Select Advanced Mode
+                </Badge>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>

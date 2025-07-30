@@ -354,19 +354,32 @@ const CreateEvent = () => {
 
         // First ensure participants exist in participants table
         for (const ep of eventParticipants) {
-          const { error: participantError } = await supabase
+          // Check if participant already exists
+          const { data: existingParticipant, error: checkError } = await supabase
             .from('participants')
-            .upsert({
-              email: ep.participant.email,
-              name: ep.participant.name,
-              company: ep.participant.company
-            }, {
-              onConflict: 'email'
-            });
+            .select('id')
+            .eq('email', ep.participant.email)
+            .maybeSingle();
 
-          if (participantError) {
-            console.error('Participant upsert error:', participantError);
-            throw participantError;
+          if (checkError) {
+            console.error('Error checking existing participant:', checkError);
+            throw checkError;
+          }
+
+          // Only insert if participant doesn't exist
+          if (!existingParticipant) {
+            const { error: participantError } = await supabase
+              .from('participants')
+              .insert({
+                email: ep.participant.email,
+                name: ep.participant.name,
+                company: ep.participant.company
+              });
+
+            if (participantError) {
+              console.error('Participant insert error:', participantError);
+              throw participantError;
+            }
           }
         }
 
@@ -843,7 +856,17 @@ const CreateEvent = () => {
               <p className="text-sm text-muted-foreground mb-3">
                 Our comprehensive event setup wizard guides you through each step to ensure your auction or RFQ is configured correctly.
               </p>
-              <Button variant="outline" size="sm" className="w-full">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full"
+                onClick={() => {
+                  toast({
+                    title: "Help Guide",
+                    description: "Comprehensive guide coming soon. For now, follow the step-by-step wizard.",
+                  });
+                }}
+              >
                 View Guide
               </Button>
             </div>
