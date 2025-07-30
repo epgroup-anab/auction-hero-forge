@@ -9,16 +9,12 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
 const Header = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { user, signOut } = useAuth();
-  
-  // Check if user is in supplier mode
-  const isSupplierMode = location.pathname.startsWith('/supplier');
 
   const handleSignOut = async () => {
     await signOut();
@@ -58,83 +54,52 @@ const Header = () => {
         <div className="flex items-center space-x-4">
           <div 
             className="bg-gradient-primary bg-clip-text text-transparent cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={() => navigate(isSupplierMode ? '/supplier/dashboard' : '/')}
+            onClick={() => navigate('/')}
           >
             <h1 className="text-2xl font-bold">AUCTION HERO</h1>
           </div>
-          
-          {/* Navigation Tabs */}
-          {isSupplierMode ? (
-            <nav className="flex items-center space-x-6 ml-8">
-              <Button 
-                variant={location.pathname.includes('/supplier/dashboard') ? 'default' : 'ghost'}
-                onClick={() => navigate('/supplier/dashboard')}
-              >
-                Events
-              </Button>
-            </nav>
-          ) : (
-            <nav className="flex items-center space-x-6 ml-8">
-              <Button 
-                variant={location.pathname === '/' ? 'default' : 'ghost'}
-                onClick={() => navigate('/')}
-              >
-                Dashboard
-              </Button>
-              <Button 
-                variant={location.pathname === '/my-events' ? 'default' : 'ghost'}
-                onClick={() => navigate('/my-events')}
-              >
-                My Events
-              </Button>
-            </nav>
-          )}
         </div>
 
-        {/* Search Bar - Only show for hosts */}
-        {!isSupplierMode && (
-          <div className="flex-1 max-w-md mx-8">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input 
-                placeholder="Search events, participants, or documents..." 
-                className="pl-10 bg-muted/50 border-0 focus:bg-background transition-colors"
-              />
-            </div>
+        {/* Search Bar */}
+        <div className="flex-1 max-w-md mx-8">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input 
+              placeholder="Search events, participants, or documents..." 
+              className="pl-10 bg-muted/50 border-0 focus:bg-background transition-colors"
+            />
           </div>
-        )}
+        </div>
 
         {/* Right Actions */}
         <div className="flex items-center space-x-4">
-          {/* Show different actions based on mode */}
-          {!isSupplierMode && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="accent" size="default" className="font-semibold">
-                  <Plus className="h-4 w-4" />
-                  New Event
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem onClick={() => navigate('/create-event')}>
-                  <span>🏛️ Government Auction</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/create-event')}>
-                  <span>📋 RFQ Event</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/create-event')}>
-                  <span>⚡ Quick Auction</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/create-event')}>
-                  <span>📊 Tender Process</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/suppliers')}>
-                  <span>👥 Manage Suppliers</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+          {/* New Event Button */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="accent" size="default" className="font-semibold">
+                <Plus className="h-4 w-4" />
+                New Event
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem onClick={() => navigate('/create-event')}>
+                <span>🏛️ Government Auction</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/create-event')}>
+                <span>📋 RFQ Event</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/create-event')}>
+                <span>⚡ Quick Auction</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/create-event')}>
+                <span>📊 Tender Process</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/suppliers')}>
+                <span>👥 Manage Suppliers</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {/* Notifications */}
           <Button variant="ghost" size="icon" className="relative">
