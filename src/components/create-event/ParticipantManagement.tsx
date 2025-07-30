@@ -32,14 +32,8 @@ interface ParticipantManagementProps {
   setAutoAccept: (autoAccept: boolean) => void;
 }
 
-// Mock participant database
-const participantDatabase: Participant[] = [
-  { id: "1", email: "sandpit1@marketdojo.com", name: "Participant-1", company: "Supplier Corp A" },
-  { id: "2", email: "sandpit2@marketdojo.com", name: "Participant-2", company: "Supplier Corp B" },
-  { id: "3", email: "sandpit3@marketdojo.com", name: "Participant-3", company: "Supplier Corp C" },
-  { id: "4", email: "john.supplier@techcorp.com", name: "John Smith", company: "Tech Corp" },
-  { id: "5", email: "sarah.vendor@solutions.com", name: "Sarah Johnson", company: "Solutions Ltd" }
-];
+// In production, this would be replaced with actual participant database queries
+const participantDatabase: Participant[] = [];
 
 export const ParticipantManagement = ({ 
   eventParticipants, 
@@ -146,16 +140,23 @@ export const ParticipantManagement = ({
                     <SelectValue placeholder="Select participant" />
                   </SelectTrigger>
                   <SelectContent>
-                    {participantDatabase
-                      .filter(p => !eventParticipants.some(ep => ep.participant.email === p.email))
-                      .map(participant => (
-                        <SelectItem key={participant.id} value={participant.id!}>
-                          <div className="flex flex-col">
-                            <span>{participant.name}</span>
-                            <span className="text-sm text-muted-foreground">{participant.email}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
+                    {participantDatabase.length === 0 ? (
+                      <div className="p-4 text-center text-muted-foreground">
+                        <p>No participants in database</p>
+                        <p className="text-xs">Add participants manually or import from your CRM</p>
+                      </div>
+                    ) : (
+                      participantDatabase
+                        .filter(p => !eventParticipants.some(ep => ep.participant.email === p.email))
+                        .map(participant => (
+                          <SelectItem key={participant.id} value={participant.id!}>
+                            <div className="flex flex-col">
+                              <span>{participant.name}</span>
+                              <span className="text-sm text-muted-foreground">{participant.email}</span>
+                            </div>
+                          </SelectItem>
+                        ))
+                    )}
                   </SelectContent>
                 </Select>
               </div>

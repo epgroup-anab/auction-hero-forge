@@ -95,9 +95,6 @@ const Header = () => {
           {/* Notifications */}
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full text-xs text-destructive-foreground flex items-center justify-center">
-              3
-            </span>
           </Button>
 
           {/* User Menu */}
@@ -105,8 +102,10 @@ const Header = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src="/avatars/01.png" alt="@user" />
-                  <AvatarFallback className="bg-primary text-primary-foreground">JD</AvatarFallback>
+                  <AvatarImage src="" alt="User" />
+                  <AvatarFallback className="bg-primary text-primary-foreground">
+                    {user?.email?.charAt(0).toUpperCase() || 'U'}
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>

@@ -1,77 +1,58 @@
-import { Calendar, Clock, Users, MessageSquare, TrendingUp, AlertCircle, Eye } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Calendar, Clock, Users, MessageSquare, TrendingUp, AlertCircle, Eye, Plus } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Event {
+  id: string;
+  name: string;
+  status: string;
+  include_auction: boolean;
+  include_questionnaire: boolean;
+  include_rfq: boolean;
+  created_at: string;
+}
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const draftEvents = [
-    {
-      id: "AUC-001",
-      name: "Office Equipment Procurement",
-      type: "RFQ",
-      deadline: "2024-02-15",
-      status: "draft",
-      participants: 0
-    },
-    {
-      id: "AUC-002", 
-      name: "IT Services Contract",
-      type: "Auction",
-      deadline: "2024-02-20",
-      status: "draft",
-      participants: 0
-    }
-  ];
+  const { user } = useAuth();
+  const [events, setEvents] = useState<Event[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const currentEvents = [
-    {
-      id: "AUC-003",
-      name: "Facility Maintenance Services", 
-      type: "RFQ",
-      deadline: "2024-02-10",
-      status: "active",
-      participants: 12,
-      responses: 8,
-      savings: "15.2%"
-    },
-    {
-      id: "AUC-004",
-      name: "Marketing Materials Auction",
-      type: "Auction", 
-      deadline: "2024-02-12",
-      status: "active",
-      participants: 25,
-      responses: 23,
-      savings: "22.7%"
+  useEffect(() => {
+    if (user) {
+      fetchEvents();
     }
-  ];
+  }, [user]);
 
-  const recentMessages = [
-    {
-      from: "TechCorp Solutions",
-      event: "IT Services Contract", 
-      message: "Question about technical requirements...",
-      time: "2 hours ago",
-      unread: true
-    },
-    {
-      from: "Global Supplies Ltd",
-      event: "Office Equipment Procurement",
-      message: "Delivery timeline clarification needed",
-      time: "4 hours ago", 
-      unread: true
-    },
-    {
-      from: "Premium Services Inc",
-      event: "Facility Maintenance Services",
-      message: "Thank you for the award notification",
-      time: "1 day ago",
-      unread: false
+  const fetchEvents = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching events:', error);
+        return;
+      }
+
+      setEvents(data || []);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
+
+  const draftEvents = events.filter(event => event.status === 'draft');
+  const activeEvents = events.filter(event => event.status === 'published');
+  const totalEvents = events.length;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -83,8 +64,8 @@ const Dashboard = () => {
             <TrendingUp className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">12</div>
-            <p className="text-xs text-muted-foreground">+2 from last month</p>
+            <div className="text-2xl font-bold text-primary">{activeEvents.length}</div>
+            <p className="text-xs text-muted-foreground">Currently running</p>
           </CardContent>
         </Card>
 
@@ -94,30 +75,37 @@ const Dashboard = () => {
             <Users className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">248</div>
-            <p className="text-xs text-muted-foreground">Across all events</p>
+            <div className="text-2xl font-bold text-primary">{totalEvents}</div>
+            <p className="text-xs text-muted-foreground">Total events created</p>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-card border-0 shadow-md hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Savings</CardTitle>
-            <TrendingUp className="h-4 w-4 text-success" />
+            <CardTitle className="text-sm font-medium">Draft Events</CardTitle>
+            <TrendingUp className="h-4 w-4 text-warning" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">18.9%</div>
-            <p className="text-xs text-muted-foreground">vs. baseline pricing</p>
+            <div className="text-2xl font-bold text-warning">{draftEvents.length}</div>
+            <p className="text-xs text-muted-foreground">Awaiting publication</p>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-card border-0 shadow-md hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Unread Messages</CardTitle>
-            <MessageSquare className="h-4 w-4 text-warning" />
+            <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
+            <MessageSquare className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-warning">7</div>
-            <p className="text-xs text-muted-foreground">Require attention</p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => navigate('/create-event')}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create Event
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -133,20 +121,44 @@ const Dashboard = () => {
             <CardDescription>Events awaiting launch</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {draftEvents.map((event) => (
-              <div key={event.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                <div className="space-y-1">
-                  <p className="font-medium text-sm">{event.name}</p>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Badge variant="outline" className="text-xs">{event.type}</Badge>
-                    <span>#{event.id}</span>
-                  </div>
-                </div>
-                <Button variant="outline" size="sm">
-                  Continue
+            {isLoading ? (
+              <div className="p-4 text-center text-muted-foreground">Loading...</div>
+            ) : draftEvents.length === 0 ? (
+              <div className="p-4 text-center text-muted-foreground">
+                <p>No draft events</p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-2"
+                  onClick={() => navigate('/create-event')}
+                >
+                  Create Your First Event
                 </Button>
               </div>
-            ))}
+            ) : (
+              draftEvents.slice(0, 3).map((event) => (
+                <div key={event.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                  <div className="space-y-1">
+                    <p className="font-medium text-sm">{event.name}</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Badge variant="outline" className="text-xs">
+                        {event.include_auction && event.include_rfq ? 'Auction + RFQ' : 
+                         event.include_auction ? 'Auction' : 
+                         event.include_rfq ? 'RFQ' : 'Event'}
+                      </Badge>
+                      <span>Created: {new Date(event.created_at).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate('/create-event')}
+                  >
+                    Continue
+                  </Button>
+                </div>
+              ))
+            )}
             <Button 
               variant="ghost" 
               className="w-full text-accent hover:text-accent-foreground"
@@ -168,39 +180,45 @@ const Dashboard = () => {
             <CardDescription>Active auctions and RFQs</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {currentEvents.map((event) => (
-              <div key={event.id} className="p-4 bg-muted/30 rounded-lg space-y-3">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <p className="font-medium">{event.name}</p>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Badge variant="outline">{event.type}</Badge>
-                      <span>#{event.id}</span>
-                      <span>Deadline: {event.deadline}</span>
-                    </div>
-                  </div>
-                  <Badge variant="secondary" className="bg-success/10 text-success border-success/20">
-                    {event.savings} savings
-                  </Badge>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Participation</span>
-                      <span>{event.responses}/{event.participants}</span>
-                    </div>
-                    <Progress 
-                      value={(event.responses / event.participants) * 100} 
-                      className="h-2"
-                    />
-                  </div>
-                  <div className="flex justify-end">
-                    <Button variant="outline" size="sm">Manage</Button>
-                  </div>
-                </div>
+            {isLoading ? (
+              <div className="p-4 text-center text-muted-foreground">Loading...</div>
+            ) : activeEvents.length === 0 ? (
+              <div className="p-4 text-center text-muted-foreground">
+                <p>No active events</p>
+                <p className="text-sm">Publish your events to see them here</p>
               </div>
-            ))}
+            ) : (
+              activeEvents.slice(0, 3).map((event) => (
+                <div key={event.id} className="p-4 bg-muted/30 rounded-lg space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <p className="font-medium">{event.name}</p>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Badge variant="outline">
+                          {event.include_auction && event.include_rfq ? 'Auction + RFQ' : 
+                           event.include_auction ? 'Auction' : 
+                           event.include_rfq ? 'RFQ' : 'Event'}
+                        </Badge>
+                        <span>Created: {new Date(event.created_at).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                    <Badge variant="secondary" className="bg-success/10 text-success border-success/20">
+                      Published
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex justify-end">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => navigate('/my-events')}
+                    >
+                      Manage
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
           </CardContent>
         </Card>
       </div>
@@ -217,27 +235,16 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-warning/10 rounded-lg border border-warning/20">
-                <div className="space-y-1">
-                  <p className="font-medium text-sm">Facility Maintenance Services</p>
-                  <p className="text-xs text-muted-foreground">RFQ Deadline</p>
+              {activeEvents.length === 0 ? (
+                <div className="p-4 text-center text-muted-foreground">
+                  <p>No upcoming deadlines</p>
+                  <p className="text-sm">Create and publish events to track deadlines</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-warning">Feb 10</p>
-                  <p className="text-xs text-muted-foreground">2 days</p>
+              ) : (
+                <div className="p-4 text-center text-muted-foreground">
+                  <p>Event deadline tracking will be available once auction dates are configured</p>
                 </div>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 bg-primary/10 rounded-lg border border-primary/20">
-                <div className="space-y-1">
-                  <p className="font-medium text-sm">Marketing Materials Auction</p>
-                  <p className="text-xs text-muted-foreground">Auction Close</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-primary">Feb 12</p>
-                  <p className="text-xs text-muted-foreground">4 days</p>
-                </div>
-              </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -252,24 +259,11 @@ const Dashboard = () => {
             <CardDescription>Latest communications</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {recentMessages.map((message, index) => (
-              <div key={index} className={`p-3 rounded-lg border ${message.unread ? 'bg-accent/10 border-accent/20' : 'bg-muted/30'}`}>
-                <div className="flex items-start justify-between mb-2">
-                  <div className="space-y-1">
-                    <p className="font-medium text-sm">{message.from}</p>
-                    <p className="text-xs text-muted-foreground">{message.event}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {message.unread && <div className="h-2 w-2 bg-accent rounded-full" />}
-                    <span className="text-xs text-muted-foreground">{message.time}</span>
-                  </div>
-                </div>
-                <p className="text-sm text-muted-foreground">{message.message}</p>
-              </div>
-            ))}
-            <Button variant="ghost" className="w-full text-accent hover:text-accent-foreground">
-              View All Messages
-            </Button>
+            <div className="p-4 text-center text-muted-foreground">
+              <MessageSquare className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+              <p>No messages yet</p>
+              <p className="text-sm">Participant communications will appear here</p>
+            </div>
           </CardContent>
         </Card>
       </div>
