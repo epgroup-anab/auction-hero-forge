@@ -70,6 +70,42 @@ export type Database = {
           },
         ]
       }
+      bids: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          lot_id: string
+          participant_id: string
+          price_per_unit: number
+          status: string
+          total_value: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          lot_id: string
+          participant_id: string
+          price_per_unit: number
+          status?: string
+          total_value: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          lot_id?: string
+          participant_id?: string
+          price_per_unit?: number
+          status?: string
+          total_value?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           created_at: string
@@ -116,6 +152,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      event_messages: {
+        Row: {
+          content: string
+          created_at: string
+          event_id: string
+          id: string
+          is_from_host: boolean
+          is_read: boolean
+          recipient_id: string | null
+          sender_id: string
+          subject: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          event_id: string
+          id?: string
+          is_from_host?: boolean
+          is_read?: boolean
+          recipient_id?: string | null
+          sender_id: string
+          subject?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+          is_from_host?: boolean
+          is_read?: boolean
+          recipient_id?: string | null
+          sender_id?: string
+          subject?: string | null
+        }
+        Relationships: []
       }
       event_participants: {
         Row: {
@@ -375,6 +447,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      terms_responses: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          participant_id: string
+          questionnaire_id: string
+          responses: Json
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          participant_id: string
+          questionnaire_id: string
+          responses?: Json
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          participant_id?: string
+          questionnaire_id?: string
+          responses?: Json
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

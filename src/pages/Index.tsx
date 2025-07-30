@@ -37,10 +37,10 @@ const Index = () => {
               </p>
               <div className="flex justify-center gap-4">
                 <Button size="lg" onClick={() => navigate('/auth')}>
-                  Sign In
+                  Sign In as Host
                 </Button>
-                <Button variant="outline" size="lg" onClick={() => navigate('/auth')}>
-                  Create Account
+                <Button variant="outline" size="lg" onClick={() => navigate('/supplier/dashboard')}>
+                  Supplier Portal
                 </Button>
               </div>
             </CardContent>

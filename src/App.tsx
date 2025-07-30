@@ -12,6 +12,9 @@ import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Suppliers from "./pages/Suppliers";
+import SupplierDashboard from "./pages/SupplierDashboard";
+import SupplierInvitations from "./pages/SupplierInvitations";
+import SupplierEvent from "./pages/SupplierEvent";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +36,9 @@ const App = () => (
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/suppliers" element={<Suppliers />} />
+              <Route path="/supplier/dashboard" element={<SupplierDashboard />} />
+              <Route path="/supplier/invitations" element={<SupplierInvitations />} />
+              <Route path="/supplier/events/:eventId" element={<SupplierEvent />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
