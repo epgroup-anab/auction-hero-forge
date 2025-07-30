@@ -14,16 +14,173 @@ export type Database = {
   }
   public: {
     Tables: {
+      auction_settings: {
+        Row: {
+          bid_direction: string
+          created_at: string
+          dynamic_close_period: string
+          event_id: string
+          event_type: string
+          id: string
+          maximum_bid_change: number
+          minimum_bid_change: number
+          minimum_duration: number
+          start_date: string | null
+          start_time: string | null
+          tied_bid_option: string
+          updated_at: string
+        }
+        Insert: {
+          bid_direction?: string
+          created_at?: string
+          dynamic_close_period?: string
+          event_id: string
+          event_type?: string
+          id?: string
+          maximum_bid_change?: number
+          minimum_bid_change?: number
+          minimum_duration?: number
+          start_date?: string | null
+          start_time?: string | null
+          tied_bid_option?: string
+          updated_at?: string
+        }
+        Update: {
+          bid_direction?: string
+          created_at?: string
+          dynamic_close_period?: string
+          event_id?: string
+          event_type?: string
+          id?: string
+          maximum_bid_change?: number
+          minimum_bid_change?: number
+          minimum_duration?: number
+          start_date?: string | null
+          start_time?: string | null
+          tied_bid_option?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auction_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          created_at: string
+          event_id: string
+          file_path: string | null
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          name: string
+          shared_with_all: boolean
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          name: string
+          shared_with_all?: boolean
+          updated_at?: string
+          version?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          name?: string
+          shared_with_all?: boolean
+          updated_at?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_participants: {
+        Row: {
+          approved: boolean
+          auto_accept: boolean
+          event_id: string
+          id: string
+          invited_at: string
+          lots_entered: number
+          participant_id: string
+          questionnaires_completed: number
+          status: string
+        }
+        Insert: {
+          approved?: boolean
+          auto_accept?: boolean
+          event_id: string
+          id?: string
+          invited_at?: string
+          lots_entered?: number
+          participant_id: string
+          questionnaires_completed?: number
+          status?: string
+        }
+        Update: {
+          approved?: boolean
+          auto_accept?: boolean
+          event_id?: string
+          id?: string
+          invited_at?: string
+          lots_entered?: number
+          participant_id?: string
+          questionnaires_completed?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_participants_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_participants_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
+          brief_text: string | null
           category: string | null
           created_at: string
           currency: string
+          default_currency: string
           description: string | null
           id: string
           include_auction: boolean
           include_questionnaire: boolean
           include_rfq: boolean
+          multi_currency: boolean
           name: string
           seal_results: boolean
           status: string
@@ -31,14 +188,17 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          brief_text?: string | null
           category?: string | null
           created_at?: string
           currency?: string
+          default_currency?: string
           description?: string | null
           id?: string
           include_auction?: boolean
           include_questionnaire?: boolean
           include_rfq?: boolean
+          multi_currency?: boolean
           name: string
           seal_results?: boolean
           status?: string
@@ -46,19 +206,99 @@ export type Database = {
           user_id: string
         }
         Update: {
+          brief_text?: string | null
           category?: string | null
           created_at?: string
           currency?: string
+          default_currency?: string
           description?: string | null
           id?: string
           include_auction?: boolean
           include_questionnaire?: boolean
           include_rfq?: boolean
+          multi_currency?: boolean
           name?: string
           seal_results?: boolean
           status?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      lots: {
+        Row: {
+          created_at: string
+          current_price: number | null
+          current_value: number | null
+          event_id: string
+          id: string
+          name: string
+          qualification_price: number | null
+          qualification_value: number | null
+          quantity: number
+          unit_of_measure: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_price?: number | null
+          current_value?: number | null
+          event_id: string
+          id?: string
+          name: string
+          qualification_price?: number | null
+          qualification_value?: number | null
+          quantity?: number
+          unit_of_measure?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_price?: number | null
+          current_value?: number | null
+          event_id?: string
+          id?: string
+          name?: string
+          qualification_price?: number | null
+          qualification_value?: number | null
+          quantity?: number
+          unit_of_measure?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lots_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      participants: {
+        Row: {
+          company: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -88,6 +328,53 @@ export type Database = {
           username?: string | null
         }
         Relationships: []
+      }
+      questionnaires: {
+        Row: {
+          created_at: string
+          deadline: string | null
+          event_id: string
+          id: string
+          name: string
+          order_index: number
+          pre_qualification: boolean
+          scoring: boolean
+          updated_at: string
+          weighting: boolean
+        }
+        Insert: {
+          created_at?: string
+          deadline?: string | null
+          event_id: string
+          id?: string
+          name: string
+          order_index?: number
+          pre_qualification?: boolean
+          scoring?: boolean
+          updated_at?: string
+          weighting?: boolean
+        }
+        Update: {
+          created_at?: string
+          deadline?: string | null
+          event_id?: string
+          id?: string
+          name?: string
+          order_index?: number
+          pre_qualification?: boolean
+          scoring?: boolean
+          updated_at?: string
+          weighting?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questionnaires_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
