@@ -425,7 +425,20 @@ const CreateEvent = () => {
     }
   };
 
-  const handleSaveDraft = () => saveCompleteEvent('draft');
+  const handleSaveDraft = () => {
+    // Add validation for draft saving
+    if (!eventData.name.trim()) {
+      toast({
+        title: "Validation Error", 
+        description: "Please enter an event name before saving as draft.",
+        variant: "destructive",
+      });
+      return;
+    }
+    console.log('Saving draft with data:', eventData);
+    saveCompleteEvent('draft');
+  };
+  
   const handleLaunchEvent = () => {
     if (!eventData.name.trim()) {
       toast({
@@ -442,6 +455,7 @@ const CreateEvent = () => {
   const loadEventData = async (id: string) => {
     try {
       setIsLoading(true);
+      console.log('Loading event data for ID:', id, 'User ID:', user?.id);
       
       // Load main event data
       const { data: event, error: eventError } = await supabase
@@ -462,7 +476,21 @@ const CreateEvent = () => {
         return;
       }
 
+      console.log('Loaded event:', event);
+
       // Update event data state
+      console.log('Setting event data:', {
+        name: event.name || "",
+        category: event.category || "",
+        default_currency: event.default_currency || "GBP", 
+        multi_currency: event.multi_currency || false,
+        brief_text: event.brief_text || "",
+        includeAuction: event.include_auction || false,
+        includeQuestionnaire: event.include_questionnaire || false,
+        includeRFQ: event.include_rfq || false,
+        sealResults: event.seal_results || true
+      });
+      
       setEventData({
         name: event.name || "",
         category: event.category || "",
@@ -484,6 +512,7 @@ const CreateEvent = () => {
           .single();
 
         if (auctionData) {
+          console.log('Loading auction settings:', auctionData);
           setAuctionSettings({
             start_date: auctionData.start_date ? new Date(auctionData.start_date) : undefined,
             start_time: auctionData.start_time || "09:00",
@@ -526,6 +555,7 @@ const CreateEvent = () => {
         .eq('event_id', id);
 
       if (documentData) {
+        console.log('Loading documents:', documentData);
         setDocuments(documentData.map(d => ({
           id: d.id,
           name: d.name,
