@@ -91,7 +91,18 @@ export const DocumentManagement = ({
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Add Document from Library</Label>
-                    <Select>
+                    <Select onValueChange={(value) => {
+                      const docTemplates = {
+                        'terms': { name: 'Standard Terms & Conditions.pdf', version: '1.0', shared_with_all: true },
+                        'nda': { name: 'Non-Disclosure Agreement.pdf', version: '1.0', shared_with_all: true },
+                        'specifications': { name: 'Technical Specifications Template.docx', version: '1.0', shared_with_all: true }
+                      };
+                      const template = docTemplates[value as keyof typeof docTemplates];
+                      if (template) {
+                        setDocuments([...documents, template]);
+                        setIsUploadOpen(false);
+                      }
+                    }}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select from library" />
                       </SelectTrigger>
@@ -126,7 +137,17 @@ export const DocumentManagement = ({
               </DialogContent>
             </Dialog>
 
-            <Select>
+            <Select onValueChange={(value) => {
+              const docTemplates = {
+                'terms': { name: 'Terms & Conditions Template.pdf', version: '1.0', shared_with_all: true },
+                'purchase': { name: 'Standard Terms of Purchase.pdf', version: '1.0', shared_with_all: true },
+                'specifications': { name: 'Product Specifications Template.docx', version: '1.0', shared_with_all: true }
+              };
+              const template = docTemplates[value as keyof typeof docTemplates];
+              if (template) {
+                setDocuments([...documents, template]);
+              }
+            }}>
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="Add from Library" />
               </SelectTrigger>

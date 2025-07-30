@@ -147,7 +147,11 @@ export const MyEvents = () => {
                     <Users className="h-4 w-4 mr-2" />
                     View Participants
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate(`/create-event?eventId=${event.id}`)}
+                  >
                     Edit Event
                   </Button>
                   <Button variant="outline" size="sm">

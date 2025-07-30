@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, Save, Send, FileText, Users, Settings, Calendar, Package, Upload, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -92,8 +92,11 @@ const CreateEvent = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const eventId = searchParams.get('eventId');
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
   // Event data states
   const [eventData, setEventData] = useState<EventData>({
@@ -364,6 +367,170 @@ const CreateEvent = () => {
     saveCompleteEvent('published');
   };
 
+  // Load existing event data if eventId is provided
+  const loadEventData = async (id: string) => {
+    try {
+      setIsLoading(true);
+      
+      // Load main event data
+      const { data: event, error: eventError } = await supabase
+        .from('events')
+        .select('*')
+        .eq('id', id)
+        .eq('user_id', user?.id)
+        .single();
+
+      if (eventError) {
+        console.error('Error loading event:', eventError);
+        toast({
+          title: "Error",
+          description: "Failed to load event data",
+          variant: "destructive",
+        });
+        navigate('/');
+        return;
+      }
+
+      // Update event data state
+      setEventData({
+        name: event.name || "",
+        category: event.category || "",
+        default_currency: event.default_currency || "GBP", 
+        multi_currency: event.multi_currency || false,
+        brief_text: event.brief_text || "",
+        includeAuction: event.include_auction || false,
+        includeQuestionnaire: event.include_questionnaire || false,
+        includeRFQ: event.include_rfq || false,
+        sealResults: event.seal_results || true
+      });
+
+      // Load auction settings
+      if (event.include_auction) {
+        const { data: auctionData } = await supabase
+          .from('auction_settings')
+          .select('*')
+          .eq('event_id', id)
+          .single();
+
+        if (auctionData) {
+          setAuctionSettings({
+            start_date: auctionData.start_date ? new Date(auctionData.start_date) : undefined,
+            start_time: auctionData.start_time || "09:00",
+            bid_direction: auctionData.bid_direction || "reverse",
+            event_type: auctionData.event_type || "ranked",
+            minimum_duration: auctionData.minimum_duration || 10,
+            dynamic_close_period: auctionData.dynamic_close_period || "none",
+            minimum_bid_change: auctionData.minimum_bid_change || 0.50,
+            maximum_bid_change: auctionData.maximum_bid_change || 10.00,
+            tied_bid_option: auctionData.tied_bid_option || "equal_worst_position"
+          });
+        }
+      }
+
+      // Load questionnaires
+      if (event.include_questionnaire) {
+        const { data: questionnaireData } = await supabase
+          .from('questionnaires')
+          .select('*')
+          .eq('event_id', id)
+          .order('order_index');
+
+        if (questionnaireData) {
+          setQuestionnaires(questionnaireData.map(q => ({
+            id: q.id,
+            name: q.name,
+            deadline: q.deadline ? new Date(q.deadline) : undefined,
+            pre_qualification: q.pre_qualification,
+            scoring: q.scoring,
+            weighting: q.weighting,
+            order_index: q.order_index
+          })));
+        }
+      }
+
+      // Load documents
+      const { data: documentData } = await supabase
+        .from('documents')
+        .select('*')
+        .eq('event_id', id);
+
+      if (documentData) {
+        setDocuments(documentData.map(d => ({
+          id: d.id,
+          name: d.name,
+          file_path: d.file_path,
+          file_size: d.file_size,
+          mime_type: d.mime_type,
+          version: d.version,
+          shared_with_all: d.shared_with_all
+        })));
+      }
+
+      // Load lots
+      if (event.include_rfq) {
+        const { data: lotData } = await supabase
+          .from('lots')
+          .select('*')
+          .eq('event_id', id);
+
+        if (lotData) {
+          setLots(lotData.map(l => ({
+            id: l.id,
+            name: l.name,
+            quantity: l.quantity,
+            unit_of_measure: l.unit_of_measure,
+            current_price: l.current_price,
+            qualification_price: l.qualification_price,
+            current_value: l.current_value,
+            qualification_value: l.qualification_value
+          })));
+        }
+      }
+
+      // Load participants
+      const { data: participantData } = await supabase
+        .from('event_participants')
+        .select(`
+          *,
+          participants (
+            id,
+            email,
+            name,
+            company
+          )
+        `)
+        .eq('event_id', id);
+
+      if (participantData) {
+        const eventParticipantsData = participantData.map(ep => ({
+          participant: {
+            id: ep.participants?.id,
+            email: ep.participants?.email || "",
+            name: ep.participants?.name,
+            company: ep.participants?.company
+          },
+          status: ep.status as 'invited' | 'registered' | 'not_accepted',
+          approved: ep.approved,
+          questionnaires_completed: ep.questionnaires_completed,
+          lots_entered: ep.lots_entered,
+          invited_at: new Date(ep.invited_at)
+        }));
+        setEventParticipants(eventParticipantsData);
+        setAutoAccept(participantData[0]?.auto_accept || false);
+      }
+
+    } catch (error) {
+      console.error('Error loading event data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load event data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Redirect to auth if not logged in
   useEffect(() => {
     if (!loading && !user) {
@@ -371,10 +538,19 @@ const CreateEvent = () => {
     }
   }, [user, loading, navigate]);
 
-  if (loading) {
+  // Load event data if eventId is provided
+  useEffect(() => {
+    if (user && eventId) {
+      loadEventData(eventId);
+    }
+  }, [user, eventId]);
+
+  if (loading || isLoading) {
     return (
       <div className="container mx-auto px-6 py-8 max-w-6xl">
-        <div className="text-center">Loading...</div>
+        <div className="text-center">
+          {isLoading ? "Loading event data..." : "Loading..."}
+        </div>
       </div>
     );
   }
@@ -463,8 +639,12 @@ const CreateEvent = () => {
             <ChevronLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Create New Event</h1>
-            <p className="text-muted-foreground">Set up your comprehensive auction or RFQ event</p>
+            <h1 className="text-3xl font-bold">
+              {eventId ? "Edit Event" : "Create New Event"}
+            </h1>
+            <p className="text-muted-foreground">
+              {eventId ? "Modify your existing event configuration" : "Set up your comprehensive auction or RFQ event"}
+            </p>
           </div>
         </div>
 

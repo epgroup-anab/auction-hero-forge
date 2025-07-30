@@ -32,8 +32,39 @@ interface ParticipantManagementProps {
   setAutoAccept: (autoAccept: boolean) => void;
 }
 
-// In production, this would be replaced with actual participant database queries
-const participantDatabase: Participant[] = [];
+// Sample participant database for testing
+const participantDatabase: Participant[] = [
+  {
+    id: "1",
+    email: "john.doe@techcorp.com",
+    name: "John Doe",
+    company: "TechCorp Solutions"
+  },
+  {
+    id: "2", 
+    email: "sarah.smith@innovate.com",
+    name: "Sarah Smith",
+    company: "Innovate Industries"
+  },
+  {
+    id: "3",
+    email: "mike.johnson@builders.com", 
+    name: "Mike Johnson",
+    company: "Builders United"
+  },
+  {
+    id: "4",
+    email: "lisa.brown@design.com",
+    name: "Lisa Brown", 
+    company: "Design Pro"
+  },
+  {
+    id: "5",
+    email: "david.wilson@logistics.com",
+    name: "David Wilson",
+    company: "Wilson Logistics"
+  }
+];
 
 export const ParticipantManagement = ({ 
   eventParticipants, 
