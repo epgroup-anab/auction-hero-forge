@@ -1,4 +1,4 @@
-import { Bell, Search, User, Plus, ChevronDown } from "lucide-react";
+import { Bell, Search, User, Plus, ChevronDown, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -10,9 +10,39 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Header = () => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  // Show sign in button if user is not authenticated
+  if (!user) {
+    return (
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center justify-between px-6">
+          {/* Logo */}
+          <div className="flex items-center space-x-4">
+            <div className="bg-gradient-primary bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold">AUCTION HERO</h1>
+            </div>
+          </div>
+
+          {/* Right Actions - Sign In */}
+          <div className="flex items-center space-x-4">
+            <Button variant="outline" onClick={() => navigate('/auth')}>
+              Sign In
+            </Button>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -89,7 +119,8 @@ const Header = () => {
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleSignOut}>
+                <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>

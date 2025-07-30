@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, Save, Send, FileText, Users, Settings, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,9 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const CreateEvent = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [eventData, setEventData] = useState({
     name: "",
@@ -42,6 +44,25 @@ const CreateEvent = () => {
       setCurrentStep(currentStep - 1);
     }
   };
+
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-6 py-8 max-w-6xl">
+        <div className="text-center">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect via useEffect
+  }
 
   const renderStepContent = () => {
     switch (currentStep) {
