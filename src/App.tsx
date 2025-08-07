@@ -15,6 +15,7 @@ import Suppliers from "./pages/Suppliers";
 import NotFound from "./pages/NotFound";
 import SupplierAuth from "./pages/supplier/SupplierAuth";
 import SupplierDashboard from "./pages/supplier/SupplierDashboard";
+import SupplierEventDetail from "./pages/supplier/SupplierEventDetail";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
               {/* Supplier Portal Routes */}
               <Route path="/supplier/auth" element={<SupplierAuth />} />
               <Route path="/supplier/dashboard" element={<SupplierDashboard />} />
+              <Route path="/supplier/event/:eventId" element={<SupplierEventDetail />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

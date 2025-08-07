@@ -287,10 +287,13 @@ const SupplierDashboard = () => {
                       )}
                       {event.status === 'active' && (
                         <>
-                          <Button size="sm">
-                            <Gavel className="h-4 w-4 mr-2" />
-                            Continue Bidding
-                          </Button>
+                           <Button 
+                             size="sm"
+                             onClick={() => navigate(`/supplier/event/${event.id}`)}
+                           >
+                             <Gavel className="h-4 w-4 mr-2" />
+                             Continue Bidding
+                           </Button>
                           <Button variant="outline" size="sm">
                             <FileText className="h-4 w-4 mr-2" />
                             View Progress
