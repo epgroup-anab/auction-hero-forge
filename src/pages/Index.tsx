@@ -43,6 +43,13 @@ const Index = () => {
                   Create Account
                 </Button>
               </div>
+              
+              <div className="mt-6 pt-6 border-t border-border">
+                <p className="text-sm text-muted-foreground mb-3">Are you a supplier looking to participate in auctions?</p>
+                <Button variant="secondary" onClick={() => navigate('/supplier/auth')}>
+                  Access Supplier Portal
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
