@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import SupplierAuth from "./pages/supplier/SupplierAuth";
 import SupplierDashboard from "./pages/supplier/SupplierDashboard";
 import SupplierEventDetail from "./pages/supplier/SupplierEventDetail";
+import AuctionMonitoring from "./pages/AuctionMonitoring";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/suppliers" element={<Suppliers />} />
+              <Route path="/auction/monitor/:eventId" element={<AuctionMonitoring />} />
               
               {/* Supplier Portal Routes */}
               <Route path="/supplier/auth" element={<SupplierAuth />} />
