@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -70,6 +70,42 @@ export type Database = {
           },
         ]
       }
+      bids: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          lot_id: string
+          participant_id: string
+          price_per_unit: number
+          status: string
+          total_value: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          lot_id: string
+          participant_id: string
+          price_per_unit: number
+          status?: string
+          total_value: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          lot_id?: string
+          participant_id?: string
+          price_per_unit?: number
+          status?: string
+          total_value?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           created_at: string
@@ -116,6 +152,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      event_messages: {
+        Row: {
+          content: string
+          created_at: string
+          event_id: string
+          id: string
+          is_from_host: boolean
+          is_read: boolean
+          recipient_id: string | null
+          sender_id: string
+          subject: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          event_id: string
+          id?: string
+          is_from_host?: boolean
+          is_read?: boolean
+          recipient_id?: string | null
+          sender_id: string
+          subject?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+          is_from_host?: boolean
+          is_read?: boolean
+          recipient_id?: string | null
+          sender_id?: string
+          subject?: string | null
+        }
+        Relationships: []
       }
       event_participants: {
         Row: {
@@ -376,6 +448,39 @@ export type Database = {
           },
         ]
       }
+      terms_responses: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          participant_id: string
+          questionnaire_id: string
+          responses: Json
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          participant_id: string
+          questionnaire_id: string
+          responses?: Json
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          participant_id?: string
+          questionnaire_id?: string
+          responses?: Json
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -404,8 +509,8 @@ export type Database = {
     Functions: {
       has_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }
